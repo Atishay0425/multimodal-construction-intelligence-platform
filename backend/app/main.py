@@ -37,7 +37,8 @@ async def ai_error_handler(_: Request, exc: AIError):
 @app.get("/api/health")
 def health(request: Request):
     return {"status": "ok", "mode": "live" if settings.live else "demo",
-            "model": settings.claude_model if settings.live else "demo-mock",
+            "provider": settings.provider if settings.live else "demo",
+            "model": settings.model_name if settings.live else "demo-mock",
             "auth_required": bool(settings.app_password),
             "authenticated": is_authenticated(request)}
 

@@ -12,6 +12,12 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     claude_model: str = "claude-opus-5-5"
     claude_effort: str = "medium"
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-3.5-flash"
+    # Tried in order when the model before is overloaded (503) or times out; empty disables fallback.
+    gemini_fallback_models: str = "gemini-3.5-flash-lite"
+    gemini_timeout_s: int = 90
+    ai_provider: str = "auto"  # auto | anthropic | gemini
     ai_mode: str = "auto"  # auto | live | demo
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     max_images: int = 5
@@ -26,12 +32,33 @@ class Settings(BaseSettings):
     frontend_dist: Path = BASE_DIR.parent / "frontend" / "dist"
 
     @property
+    def provider(self) -> str:
+        """Which model backend to call. auto prefers Claude, then Gemini, whichever has a key."""
+        if self.ai_provider in ("anthropic", "gemini"):
+            return self.ai_provider
+        if self.anthropic_api_key:
+            return "anthropic"
+        if self.gemini_api_key:
+            return "gemini"
+        return "anthropic"
+
+    @property
+    def gemini_models(self) -> list[str]:
+        """Main model first, then fallbacks, without duplicates."""
+        extra = [m.strip() for m in self.gemini_fallback_models.split(",") if m.strip()]
+        return list(dict.fromkeys([self.gemini_model, *extra]))
+
+    @property
+    def model_name(self) -> str:
+        return self.gemini_model if self.provider == "gemini" else self.claude_model
+
+    @property
     def live(self) -> bool:
         if self.ai_mode == "demo":
             return False
         if self.ai_mode == "live":
             return True
-        return bool(self.anthropic_api_key)
+        return bool(self.gemini_api_key if self.provider == "gemini" else self.anthropic_api_key)
 
     @property
     def cors_list(self) -> list[str]:

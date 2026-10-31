@@ -45,7 +45,7 @@ machine-readable insights.
 | NFR-3 | **Robust input handling** | Rejects empty, corrupt, truncated, unsupported, tiny, oversized and too-many images with clear messages |
 | NFR-4 | **Honest output on poor images** | Prompts require quality notes, lower confidence and no invented findings |
 | NFR-5 | **Graceful failure** | Refusals, truncation, rate limits, auth and network errors mapped to readable HTTP errors; weather outage falls back to general advice |
-| NFR-6 | **Secrets stay server-side** | API key only in `backend/.env` (git-ignored), never sent to the browser |
+| NFR-6 | **Secrets stay server-side** | API keys only in `backend/.env` (git-ignored), never sent to the browser |
 | NFR-7 | **Cost protection when public** | Optional access password; per-IP hourly rate limit on AI endpoints |
 | NFR-8 | **Runs without credentials** | Demo mode returns schema-identical sample data |
 | NFR-9 | **Responsive and accessible UI** | Works at 375 px width; keyboard-operable controls; light/dark themes |
@@ -55,7 +55,7 @@ machine-readable insights.
 
 * Backend: Python 3.9+, FastAPI, Anthropic SDK, Pillow, SQLite
 * Frontend: Node 18+, React 18, Vite 5
-* External services: Anthropic API (Claude), Open-Meteo (weather, no key)
+* External services: Google Gemini API (free tier) or Anthropic API (Claude), Open-Meteo (weather, no key)
 
 ## 6. Acceptance tests
 

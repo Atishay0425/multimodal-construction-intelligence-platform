@@ -96,12 +96,14 @@ export function ValuationResult({ data }) {
   );
 }
 
+const FLOOR_NAMES = ["Ground floor", "First floor", "Second floor", "Third floor"];
+
 function FloorPlan({ rooms }) {
   const floors = [...new Set(rooms.map((r) => r.floor))].sort((a, b) => a - b);
   const scale = 28; // px per metre
   return (
     <div className="floors">
-      {floors.map((fl) => {
+      {floors.map((fl, idx) => {
         const rs = rooms.filter((r) => r.floor === fl);
         const total = rs.reduce((a, r) => a + r.width_m * r.length_m, 0);
         const rowW = Math.max(14, Math.sqrt(total) * 1.6); // wrap rooms into rows of ~this width (m)
@@ -113,7 +115,7 @@ function FloorPlan({ rooms }) {
         });
         return (
           <div key={fl} className="floor">
-            <h4>{fl === 0 ? "Ground floor" : `Floor ${fl}`} · {total.toFixed(0)} m²</h4>
+            <h4>{FLOOR_NAMES[idx] ?? `Floor ${idx}`} · {total.toFixed(0)} m²</h4>
             {rows.map((row, i) => (
               <div className="plan-row" key={i}>
                 {row.map((r) => (
@@ -139,7 +141,7 @@ function Gantt({ tasks, total }) {
         <div className="gantt-row" key={t.id}>
           <div className="gantt-label" title={t.name}><small>{t.id}</small> {t.name}</div>
           <div className="gantt-track">
-            <div className={`gantt-bar p${phases.indexOf(t.phase) % 6}`}
+            <div className={`gantt-bar p${phases.indexOf(t.phase) % 8}`}
                  style={{ left: `${(t.start_day / total) * 100}%`, width: `${Math.max(1.5, (t.duration_days / total) * 100)}%` }}
                  title={`${t.phase}: day ${t.start_day} → ${t.start_day + t.duration_days}`}>
               {t.duration_days}d
@@ -147,7 +149,7 @@ function Gantt({ tasks, total }) {
           </div>
         </div>
       ))}
-      <div className="legend">{phases.map((p, i) => <span key={p}><i className={`p${i % 6}`} /> {p}</span>)}</div>
+      <div className="legend">{phases.map((p, i) => <span key={p}><i className={`p${i % 8}`} /> {p}</span>)}</div>
     </div>
   );
 }

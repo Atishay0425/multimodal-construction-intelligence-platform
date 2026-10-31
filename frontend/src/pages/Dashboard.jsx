@@ -24,8 +24,8 @@ export default function Dashboard({ go }) {
       <PageHeader title="Construction Intelligence Platform" subtitle="Multimodal AI for safety, structure, planning and valuation — text and images in, structured insight out." />
       <div className={`status ${down ? "bad" : health?.mode === "demo" ? "warn" : "ok"}`}>
         {down && "Backend not reachable on port 8000 — start it with the command in the README."}
-        {health?.mode === "live" && `AI online · ${health.model}`}
-        {health?.mode === "demo" && "Demo mode — add ANTHROPIC_API_KEY to backend/.env to enable live Claude analysis."}
+        {health?.mode === "live" && `AI online · ${health.provider === "gemini" ? "Gemini" : "Claude"} · ${health.model}`}
+        {health?.mode === "demo" && "Demo mode — add GEMINI_API_KEY (free) or ANTHROPIC_API_KEY to backend/.env for live AI analysis."}
         {!down && !health && "Checking backend…"}
         {count !== null && <span> · {count} saved analyses</span>}
       </div>

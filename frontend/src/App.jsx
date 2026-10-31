@@ -13,9 +13,10 @@ const PAGES = {
 };
 
 export default function App() {
-  const [page, setPage] = useState(() => location.hash.slice(1) || "dashboard");
+  const [route, setRoute] = useState(() => location.hash.slice(1) || "dashboard");
+  const [page, param] = route.split("/");
   useEffect(() => {
-    const onHash = () => setPage(location.hash.slice(1) || "dashboard");
+    const onHash = () => setRoute(location.hash.slice(1) || "dashboard");
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
@@ -42,7 +43,7 @@ export default function App() {
       </nav>
       <main className="content">
         {/* Keyed so each module starts fresh and never shows another module's results. */}
-        {Page ? <Page key={page} /> : <Dashboard go={go} />}
+        {Page ? <Page key={page} param={param} /> : <Dashboard go={go} />}
       </main>
     </div>
   );

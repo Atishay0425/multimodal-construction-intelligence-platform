@@ -77,7 +77,7 @@ function ModeNote({ envelope }) {
   return envelope.mode === "demo" ? (
     <div className="alert info">
       <strong>Demo data.</strong> No API key is configured, so this is a sample response. Add
-      <code>ANTHROPIC_API_KEY</code> to <code>backend/.env</code> for real analysis.
+      <code>GEMINI_API_KEY</code> or <code>ANTHROPIC_API_KEY</code> to <code>backend/.env</code> for real analysis.
     </div>
   ) : (
     <div className="meta-line">Analysed by {envelope.model}</div>

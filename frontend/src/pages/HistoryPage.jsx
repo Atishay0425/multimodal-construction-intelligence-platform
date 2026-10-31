@@ -11,13 +11,14 @@ const VIEWS = {
 };
 export const KIND_LABEL = { safety: "Safety", cracks: "Cracks", valuation: "Valuation", planning: "Planning", assistant: "Daily briefing", knowledge: "Q&A" };
 
-export default function HistoryPage() {
+export default function HistoryPage({ param }) {
   const [kind, setKind] = useState("");
   const [rows, setRows] = useState([]);
-  const [open, setOpen] = useState(null);
   const [error, setError] = useState("");
   const load = () => getHistory(kind).then(setRows).catch((e) => setError(e.message));
-  useEffect(() => { setOpen(null); load(); }, [kind]);
+  useEffect(() => { load(); }, [kind]);
+  const open = rows.find((r) => r.id === param) || null;
+  const setOpen = (r) => { location.hash = r ? `history/${r.id}` : "history"; };
 
   const remove = async (id) => {
     try { await deleteHistory(id); setOpen(null); load(); } catch (e) { setError(e.message); }
@@ -29,7 +30,7 @@ export default function HistoryPage() {
       <PageHeader title="History" subtitle="Every analysis is saved locally so you can revisit or delete it." />
       <div className="filters">
         {["", ...Object.keys(KIND_LABEL)].map((k) => (
-          <button key={k} className={`btn ${kind === k ? "primary" : ""}`} onClick={() => setKind(k)}>{k ? KIND_LABEL[k] : "All"}</button>
+          <button key={k} className={`btn ${kind === k ? "primary" : ""}`} onClick={() => { setKind(k); setOpen(null); }}>{k ? KIND_LABEL[k] : "All"}</button>
         ))}
       </div>
       <ErrorBox message={error} />
