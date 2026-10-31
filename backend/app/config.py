@@ -1,9 +1,12 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Vercel sets VERCEL=1; its filesystem is read-only apart from /tmp, and its edge sets X-Forwarded-For itself.
+ON_VERCEL = bool(os.environ.get("VERCEL"))
 
 
 class Settings(BaseSettings):
@@ -22,13 +25,13 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     max_images: int = 5
     max_image_mb: int = 10
-    data_dir: Path = BASE_DIR / "data"
+    data_dir: Path = Path("/tmp/mcip-data") if ON_VERCEL else BASE_DIR / "data"
     # Optional shared password for public deployments; empty = no login.
     app_password: str = ""
     # Max analysis requests per client IP per hour (protects your API credit).
     rate_limit_per_hour: int = 60
     # Only enable behind a reverse proxy you control; otherwise X-Forwarded-For is spoofable.
-    trust_proxy: bool = False
+    trust_proxy: bool = ON_VERCEL
     frontend_dist: Path = BASE_DIR.parent / "frontend" / "dist"
 
     @property

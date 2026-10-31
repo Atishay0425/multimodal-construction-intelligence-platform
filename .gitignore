@@ -6,3 +6,5 @@ dist/
 backend/data/
 .pytest_cache/
 .DS_Store
+.vercel
+.env*

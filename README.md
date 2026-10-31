@@ -101,6 +101,20 @@ so use a persistent disk if you want it to survive redeploys.
 
 **Before making it public, set `APP_PASSWORD`.** Without it anyone with the URL can spend your API credit.
 
+### Vercel
+
+The repo is ready for Vercel as-is: `vercel.json` builds the React app as static files and runs
+the FastAPI backend as one Python function (`api/index.py`) for `/api/*` and `/uploads/*`.
+
+```bash
+vercel env add GEMINI_API_KEY production   # paste the key when asked
+vercel deploy --prod
+```
+
+On Vercel the app stores history and photos in `/tmp`, and trusts Vercel's `X-Forwarded-For`
+header automatically. Photos over 1.5 MB are resized in the browser before upload, because
+Vercel limits a request to 4.5 MB.
+
 ## API
 
 All analysis endpoints return `{id, kind, mode, model, created_at, image_urls, result, context}`.
@@ -134,3 +148,5 @@ rate-limit errors, malformed output).
 * Weather needs internet access; without it the assistant falls back to general advice.
 * Gemini free tier allows only a few requests per minute; Google may use free-tier inputs to
   improve its products, so avoid uploading sensitive photos.
+* On Vercel, saved history is temporary: it lives in the function's `/tmp` and is lost when the
+  function restarts. Use a host with a persistent disk (or an external database) to keep it.

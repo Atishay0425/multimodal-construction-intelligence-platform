@@ -1,4 +1,4 @@
-"""Deterministic demo responses used when no ANTHROPIC_API_KEY is configured.
+"""Deterministic demo responses used when no AI key is configured.
 
 They match the real schemas exactly so the UI and tests behave identically in both modes.
 """
@@ -141,7 +141,7 @@ def assistant(ctx: dict, n_images: int) -> s.DailyBriefing:
 def knowledge(ctx: dict, n_images: int) -> s.KnowledgeAnswer:
     q = ctx.get("question", "")
     return s.KnowledgeAnswer(
-        answer=f"DEMO answer for: \"{q}\". Add an ANTHROPIC_API_KEY to the backend .env to get a real, model-generated answer.",
+        answer=f"DEMO answer for: \"{q}\". Add a GEMINI_API_KEY (free) or ANTHROPIC_API_KEY to get a real, model-generated answer.",
         key_points=["Demo mode returns placeholder content", "Live mode uses Claude with construction-specific guidance"],
         standards_referenced=["IS 456", "OSHA 1926"],
         follow_up_questions=["What grade of concrete suits this element?", "What curing period applies?"],
