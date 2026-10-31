@@ -1,0 +1,42 @@
+{
+ "date": "2026-10-31",
+ "total": 51,
+ "passed": 51,
+ "groups": [
+  {
+   "area": "Photo uploads",
+   "count": 8,
+   "covers": "Missing photo, truncated or corrupt file, wrong file type, tiny image, too many photos, oversized image"
+  },
+  {
+   "area": "Form inputs and limits",
+   "count": 13,
+   "covers": "NaN, infinity, negative and absurd numbers, blank text, empty questions"
+  },
+  {
+   "area": "The six tools",
+   "count": 8,
+   "covers": "Every tool returns a valid report, schedules with loops, totals recalculated, weather offline"
+  },
+  {
+   "area": "Saved reports",
+   "count": 2,
+   "covers": "Save, open and delete a report, and a wildcard delete that must not remove other photos"
+  },
+  {
+   "area": "Gemini connection",
+   "count": 10,
+   "covers": "Request shape, busy model fallback, rate limit, bad key, blocked or cut-off answers, malformed JSON"
+  },
+  {
+   "area": "Claude connection",
+   "count": 5,
+   "covers": "Request shape, bad key, refusals, cut-off answers, malformed JSON"
+  },
+  {
+   "area": "Password and request limits",
+   "count": 5,
+   "covers": "Login gate, hourly limit, spoofed forwarding headers, non-ASCII passwords"
+  }
+ ]
+}

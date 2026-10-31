@@ -1,0 +1,68 @@
+{
+ "seconds": 28.8,
+ "envelope": {
+  "id": "8096541b87d543c7bebbea2faaf44333",
+  "kind": "safety",
+  "mode": "live",
+  "model": "gemini-3.5-flash",
+  "created_at": "2026-10-31T16:22:13+00:00",
+  "image_urls": [
+   "/testing/scaffolding.jpg"
+  ],
+  "context": {
+   "notes": "Plastering the upper storey from timber scaffolding.",
+   "site_type": "Residential building",
+   "testing": true
+  },
+  "result": {
+   "summary": "Critical safety violations observed on high-level plastering work. Workers are using non-standard bamboo/pole scaffolding at heights exceeding 4 meters without fall protection, proper platform decking, guardrails, or hard hats.",
+   "overall_risk": "critical",
+   "risk_score": 92,
+   "ppe": {
+    "workers_visible": 5,
+    "hard_hat": "none",
+    "high_vis_vest": "none",
+    "gloves_and_footwear": "none",
+    "notes": "No personal protective equipment (hard hats, safety harnesses, high-vis vests, or safety footwear) is visible on any worker."
+   },
+   "findings": [
+    {
+     "category": "fall_protection",
+     "description": "Multiple workers are working at height on upper scaffold tiers and roof edges with no fall arrest gear, lifelines, or guardrails, posing an extreme fall risk.",
+     "severity": "critical",
+     "location_in_image": "Upper scaffold tier and roof parapet level across the facade",
+     "corrective_action": "Halt work at height immediately. Provide personal fall arrest systems (harnesses, shock-absorbing lanyards, secure anchor points) and install perimeter guardrails."
+    },
+    {
+     "category": "scaffolding",
+     "description": "The bamboo pole scaffold structure is unengineered, lacks continuous solid working platforms, guardrails, midrails, and proper structural bracing.",
+     "severity": "critical",
+     "location_in_image": "Entire scaffold frame across the building facade",
+     "corrective_action": "Dismantle or replace with an engineered modular steel scaffolding system featuring fully planked decks, toe-boards, and rigid bracing."
+    },
+    {
+     "category": "ppe",
+     "description": "Absence of head protection exposes ground and elevated workers to overhead falling debris (tools, plaster material).",
+     "severity": "high",
+     "location_in_image": "All workers on site",
+     "corrective_action": "Mandate and enforce hard hats, high-visibility vests, and safety boots for all site personnel."
+    },
+    {
+     "category": "scaffolding",
+     "description": "Access ladder resting against bamboo framing appears untied at the top and lacks 1-meter extension above the landing platform.",
+     "severity": "high",
+     "location_in_image": "Right side of building elevation",
+     "corrective_action": "Securely tie off top of ladder, ensure proper 4:1 incline angle, and extend side rails 1 meter above working level."
+    }
+   ],
+   "immediate_actions": [
+    "Order an immediate stop-work for all tasks performed on the bamboo scaffold.",
+    "Safe evacuation of all workers from elevated levels.",
+    "Equip all site personnel with mandatory PPE including hard hats, fall protection harnesses, and safety boots.",
+    "Erect a compliant engineered scaffolding system with solid working platforms and guardrails prior to resuming work."
+   ],
+   "image_quality_note": "Clear full view of facade showing scaffold structure and worker activities.",
+   "confidence": "high"
+  }
+ }
+}

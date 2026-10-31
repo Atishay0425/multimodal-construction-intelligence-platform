@@ -1,0 +1,57 @@
+[
+ {
+  "slug": "fall-protection",
+  "tool": "safety",
+  "title": "Construction workers not wearing fall protection equipment.jpg",
+  "author": "National Institute for Occupational Safety and Health (NIOSH) from USA",
+  "license": "Public domain",
+  "source": "https://commons.wikimedia.org/wiki/File:Construction_workers_not_wearing_fall_protection_equipment.jpg",
+  "file": "/testing/fall-protection.jpg",
+  "label": "Steelworkers on a high-rise frame",
+  "expect": "Flags missing or unsecured fall protection"
+ },
+ {
+  "slug": "scaffolding",
+  "tool": "safety",
+  "title": "Improvised Scaffolding in a construction site.jpg",
+  "author": "Haykinz001",
+  "license": "CC BY-SA 4.0",
+  "source": "https://commons.wikimedia.org/wiki/File:Improvised_Scaffolding_in_a_construction_site.jpg",
+  "file": "/testing/scaffolding.jpg",
+  "label": "Bamboo scaffolding, upper-storey plastering",
+  "expect": "Flags the unsafe scaffolding"
+ },
+ {
+  "slug": "workers-building",
+  "tool": "safety",
+  "title": "Workers at building under construction.jpg",
+  "author": "Pauloleong2002",
+  "license": "CC BY 4.0",
+  "source": "https://commons.wikimedia.org/wiki/File:Workers_at_building_under_construction.jpg",
+  "file": "/testing/workers-building.jpg",
+  "label": "Formwork and rebar crew",
+  "expect": "Reports at least one hazard"
+ },
+ {
+  "slug": "wall-crack",
+  "tool": "cracks",
+  "title": "Crack in the wall.jpg",
+  "author": "Vladimer Shioshvili",
+  "license": "CC BY-SA 2.0",
+  "source": "https://commons.wikimedia.org/wiki/File:Crack_in_the_wall.jpg",
+  "file": "/testing/wall-crack.jpg",
+  "label": "Cracked brick facade",
+  "expect": "Detects a crack"
+ },
+ {
+  "slug": "retaining-wall-crack",
+  "tool": "cracks",
+  "title": "Detail of vertical crack in concrete retaining wall at Medway Park Sports Centre, Gillingham, Kent, England.jpg",
+  "author": "Sunolafjagtenben-hur",
+  "license": "CC0",
+  "source": "https://commons.wikimedia.org/wiki/File:Detail_of_vertical_crack_in_concrete_retaining_wall_at_Medway_Park_Sports_Centre,_Gillingham,_Kent,_England.jpg",
+  "file": "/testing/retaining-wall-crack.jpg",
+  "label": "Retaining wall with a vertical crack",
+  "expect": "Detects a crack"
+ }
+]

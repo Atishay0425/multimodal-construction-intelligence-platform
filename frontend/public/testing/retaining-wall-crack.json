@@ -1,0 +1,47 @@
+{
+ "seconds": 12.8,
+ "envelope": {
+  "id": "bdc8e90a58a7458489f525ddd014d263",
+  "kind": "cracks",
+  "mode": "live",
+  "model": "gemini-3.5-flash",
+  "created_at": "2026-10-31T17:27:25+00:00",
+  "image_urls": [
+   "/testing/retaining-wall-crack.jpg"
+  ],
+  "context": {
+   "notes": "Concrete block retaining wall next to a tree.",
+   "element": "Wall",
+   "testing": true
+  },
+  "result": {
+   "summary": "A severe vertical structural crack and full section separation observed in a concrete block retaining wall, likely driven by tree root expansion and differential settlement.",
+   "cracks_detected": true,
+   "overall_severity": "severe",
+   "requires_structural_engineer": true,
+   "findings": [
+    {
+     "crack_type": "settlement",
+     "location": "Vertical interface at the stepped junction of the concrete block retaining wall",
+     "orientation": "vertical",
+     "estimated_width_mm": 15.0,
+     "severity": "severe",
+     "probable_causes": [
+      "Tree root expansion and soil displacement from adjacent mature tree",
+      "Differential foundation settlement",
+      "Lack of engineered expansion or movement joints"
+     ],
+     "recommended_actions": [
+      "Consult a structural or geotechnical engineer for wall stability evaluation",
+      "Assess tree root impact with an arboricultural professional",
+      "Install calibrated tell-tale crack monitoring gauges",
+      "Rebuild the displaced wall section incorporating proper movement joints and drainage"
+     ]
+    }
+   ],
+   "monitoring_plan": "Affix tell-tale crack gauges across the separation and take monthly measurements and scaled photographs to track active displacement.",
+   "limitations": "Visual inspection limited to a single photograph; foundation details, internal wall reinforcement, and soil conditions cannot be verified.",
+   "confidence": "high"
+  }
+ }
+}

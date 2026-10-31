@@ -18,17 +18,18 @@ criteria are in [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md).
 
 ## Screenshots
 
-Real results from Gemini on the free tier (the test photos are simple generated illustrations).
+Real results from Gemini on the free tier. The safety and crack screenshots use open-licensed site
+photos (see [Testing](#testing)).
 
-| Dashboard | Site safety |
+| Home | Site safety (real photo) |
 |---|---|
-| ![Dashboard](docs/screenshots/01-dashboard.png) | ![Safety](docs/screenshots/02-safety.png) |
-| **Crack analysis** | **Valuation** |
-| ![Cracks](docs/screenshots/03-cracks.png) | ![Valuation](docs/screenshots/04-valuation.png) |
-| **Planning** (costs, Gantt, floor plan) | **Daily site assistant** |
-| ![Planning](docs/screenshots/05-planning.png) | ![Daily assistant](docs/screenshots/06-daily-assistant.png) |
-| **Knowledge chat** | |
-| ![Knowledge](docs/screenshots/07-knowledge.png) | |
+| ![Home](docs/screenshots/01-dashboard.png) | ![Safety](docs/screenshots/02-safety.png) |
+| **Crack analysis (real photo)** | **Testing page** |
+| ![Cracks](docs/screenshots/03-cracks.png) | ![Testing](docs/screenshots/08-testing.png) |
+| **Valuation** | **Planning** (costs, Gantt, floor plan) |
+| ![Valuation](docs/screenshots/04-valuation.png) | ![Planning](docs/screenshots/05-planning.png) |
+| **Daily briefing** | **Ask a question** |
+| ![Daily briefing](docs/screenshots/06-daily-assistant.png) | ![Knowledge](docs/screenshots/07-knowledge.png) |
 
 ## Architecture
 
@@ -129,16 +130,30 @@ All analysis endpoints return `{id, kind, mode, model, created_at, image_urls, r
 
 Interactive docs: http://localhost:8000/docs
 
-## Tests
+## Testing
+
+The site has a **Testing** page (`#testing`) that shows both kinds of testing.
+
+**Real site photos.** Five open-licensed photos from Wikimedia Commons (`frontend/public/testing/`)
+were run through the live analysis. The page shows each photo, what the AI found, whether it found
+what a person can plainly see, the full report, and the photo credit. A test is marked as passed
+when the report contains that visible issue; it does not prove a severity or crack width is right.
+Re-run them against a live backend with:
+
+```bash
+backend/.venv/bin/python backend/scripts/run_photo_tests.py
+```
+
+**Automated checks.** 51 backend tests:
 
 ```bash
 cd backend && .venv/bin/python -m pytest -q
 ```
 
-Covers every endpoint, upload edge cases (empty, corrupt, truncated, wrong format, too small,
-too many), planning math, password gate and rate limiting, and both live provider paths (Claude and
-Gemini) against a fake HTTP transport (request shape, refusals/safety blocks, truncation, auth and
-rate-limit errors, malformed output).
+They cover every endpoint, upload edge cases (empty, corrupt, truncated, wrong format, too small,
+too many, decompression bombs), NaN and out-of-range numbers, planning math, the password gate and
+rate limiting, and both live provider paths (Claude and Gemini) against a fake HTTP transport
+(request shape, refusals and safety blocks, truncation, auth and rate-limit errors, malformed output).
 
 ## Known limitations
 

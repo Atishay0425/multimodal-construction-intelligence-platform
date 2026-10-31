@@ -5,7 +5,7 @@ const TONE = {
   none: "ok", low: "ok", minor: "ok", go: "ok", high_conf: "ok", all: "ok",
   medium: "warn", moderate: "warn", proceed_with_caution: "warn", some: "warn", major: "warn",
   high: "bad", severe: "bad", hold: "bad", none_worn: "bad", stop_work: "bad", critical: "crit",
-  not_assessable: "muted",
+  not_assessable: "muted", test: "test",
 };
 
 export function Badge({ value, children }) {
@@ -42,14 +42,14 @@ export function ErrorBox({ message }) {
 
 export function BrandMark() {
   return (
-    <svg className="brand-mark" viewBox="0 0 22 22" aria-hidden="true">
-      <rect x="1" y="1" width="20" height="20" rx="2" fill="#FFCC00" stroke="#24292B" strokeWidth="2" />
-      <path d="M5 16.5 11 5l6 11.5Z" fill="#24292B" />
+    <svg className="brand-mark" viewBox="0 0 20 20" aria-hidden="true">
+      <rect width="20" height="20" rx="5" fill="#0071E3" />
+      <path d="M4.5 14.5 10 4.5l5.5 10Z" fill="#fff" />
     </svg>
   );
 }
 
-/** Hazard-tape progress bar shown while the AI works. */
+/** Slim progress bar shown while the AI works. */
 export function Spinner({ label = "Analysing…", compact = false }) {
   return (
     <div className={`progress ${compact ? "compact" : ""}`} role="status">
@@ -81,7 +81,7 @@ export function ModeBanner({ envelope }) {
   return (
     <>
       <div className="title-block">
-        <div><span>Report</span><strong>{KIND_NAME[envelope.kind] ?? envelope.kind}</strong></div>
+        <div><span>Report</span><strong>{KIND_NAME[envelope.kind] ?? envelope.kind}{envelope.context?.testing && <>{" "}<Badge value="test">Test run</Badge></>}</strong></div>
         <div><span>Reference</span><strong>{envelope.id.slice(0, 8)}</strong></div>
         <div><span>Created</span><strong>{new Date(envelope.created_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</strong></div>
         <div><span>Analysed by</span><strong>{demo ? "Demo data" : envelope.model}</strong></div>

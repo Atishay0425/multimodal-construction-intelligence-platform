@@ -1,0 +1,53 @@
+{
+ "seconds": 1039.2,
+ "envelope": {
+  "id": "e77b2cc85c2e4309b4867d437497617d",
+  "kind": "safety",
+  "mode": "live",
+  "model": "gemini-3.5-flash-lite",
+  "created_at": "2026-10-31T16:39:40+00:00",
+  "image_urls": [
+   "/testing/workers-building.jpg"
+  ],
+  "context": {
+   "notes": "Wall formwork and rebar in progress.",
+   "site_type": "Commercial building",
+   "testing": true
+  },
+  "result": {
+   "summary": "Construction site with multiple workers engaged in wall formwork and rebar installation, working around vertical rebar projections and bamboo scaffolding.",
+   "overall_risk": "high",
+   "risk_score": 75,
+   "ppe": {
+    "workers_visible": 4,
+    "hard_hat": "some",
+    "high_vis_vest": "some",
+    "gloves_and_footwear": "not_assessable",
+    "notes": "At least four workers are visible. Some workers are wearing hard hats and high-visibility vests, but at least one worker appears to be missing high-vis gear or a hard hat."
+   },
+   "findings": [
+    {
+     "category": "fall_protection",
+     "description": "Unprotected vertical rebar dowels protruding upwards throughout the work area, posing impalement hazards.",
+     "severity": "high",
+     "location_in_image": "Throughout the center and foreground around concrete wall forms",
+     "corrective_action": "Install mushroom caps or trough guards on all vertical rebar ends immediately."
+    },
+    {
+     "category": "housekeeping",
+     "description": "Scattered timber formwork pieces and debris near edges and walkways.",
+     "severity": "medium",
+     "location_in_image": "Foreground lower right and bottom center",
+     "corrective_action": "Clear scrap timber and organize materials to maintain safe walkways and prevent trip hazards."
+    }
+   ],
+   "immediate_actions": [
+    "Install rebar caps on all exposed vertical rebar ends to eliminate impalement risks.",
+    "Verify 100% compliance with hard hat and high-visibility vest requirements for all personnel on deck.",
+    "Clear housekeeping debris and scrap wood from walkways."
+   ],
+   "image_quality_note": "Clear, well-lit photograph showing workers and site conditions in moderate detail.",
+   "confidence": "high"
+  }
+ }
+}

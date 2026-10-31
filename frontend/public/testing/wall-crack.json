@@ -1,0 +1,47 @@
+{
+ "seconds": 2659.7,
+ "envelope": {
+  "id": "967b17de44824737b9ebb2e842650a9d",
+  "kind": "cracks",
+  "mode": "live",
+  "model": "gemini-3.5-flash-lite",
+  "created_at": "2026-10-31T17:24:08+00:00",
+  "image_urls": [
+   "/testing/wall-crack.jpg"
+  ],
+  "context": {
+   "notes": "Old brick church facade.",
+   "element": "Wall",
+   "testing": true
+  },
+  "result": {
+   "summary": "Severe vertical structural cracking running through the central architectural features and brickwork of the facade, originating near the gable peak and extending downward past the window opening.",
+   "cracks_detected": true,
+   "overall_severity": "severe",
+   "requires_structural_engineer": true,
+   "findings": [
+    {
+     "crack_type": "vertical",
+     "location": "Center of the brick facade, passing through the upper gable apex, decorative stone niche, pediment, and extending down below the arched window",
+     "orientation": "vertical",
+     "estimated_width_mm": 15.0,
+     "severity": "severe",
+     "probable_causes": [
+      "Differential foundation settlement",
+      "Structural overloading or roof spreading forces",
+      "Thermal movement in historic masonry"
+     ],
+     "recommended_actions": [
+      "Engage a structural engineer specializing in historic preservation immediately",
+      "Install tell-tale crack monitors to track active movement",
+      "Perform non-destructive testing to assess wall tie and internal stability",
+      "Implement temporary shoring if ongoing movement is detected"
+     ]
+    }
+   ],
+   "monitoring_plan": "Install mechanical or electronic crack width gauges across the vertical fracture at multiple elevations. Record measurements and take dated photographs bi-weekly to determine if the crack is actively widening or stabilizing.",
+   "limitations": "Visual assessment is based solely on exterior photographic evidence without direct physical access, material testing, or sub-surface investigation.",
+   "confidence": "high"
+  }
+ }
+}

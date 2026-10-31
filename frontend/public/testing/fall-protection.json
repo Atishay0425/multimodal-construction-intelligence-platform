@@ -1,0 +1,60 @@
+{
+ "seconds": 7.6,
+ "envelope": {
+  "id": "b5b8dbe7e18d43598f2044a5ca768941",
+  "kind": "safety",
+  "mode": "live",
+  "model": "gemini-3.5-flash-lite",
+  "created_at": "2026-10-31T16:21:35+00:00",
+  "image_urls": [
+   "/testing/fall-protection.jpg"
+  ],
+  "context": {
+   "notes": "Steel frame erection, high-rise.",
+   "site_type": "Commercial building",
+   "testing": true
+  },
+  "result": {
+   "summary": "Two workers are performing steel erection at high elevation. One worker on the left is wearing a harness with lanyard hanging unsecured. Another worker on the right is walking and standing on an elevated steel beam without any visible fall protection system tied off.",
+   "overall_risk": "critical",
+   "risk_score": 95,
+   "ppe": {
+    "workers_visible": 2,
+    "hard_hat": "all",
+    "high_vis_vest": "none",
+    "gloves_and_footwear": "some",
+    "notes": "Both workers wear hard hats. High-visibility vests are not visible. Lanyards/harnesses are present on the worker in the foreground but are not tied off."
+   },
+   "findings": [
+    {
+     "category": "fall_protection",
+     "description": "Worker is walking and working on a narrow elevated steel beam at high-rise level without any fall arrest system or safety harness connected.",
+     "severity": "critical",
+     "location_in_image": "Center-right, standing on the upper horizontal steel beam",
+     "corrective_action": "Halt work immediately, require 100% tie-off with retractable lifelines or personal fall arrest systems, and install temporary safety cable systems or nets."
+    },
+    {
+     "category": "fall_protection",
+     "description": "Worker in the foreground is wearing a harness, but the lanyards are hanging down unattached to any anchor point.",
+     "severity": "high",
+     "location_in_image": "Left side, standing on foreground steel beam",
+     "corrective_action": "Ensure the worker immediately hooks lanyards to an approved structural anchor point or lifeline before performing elevated tasks."
+    },
+    {
+     "category": "equipment",
+     "description": "Crane load line and ball block operating in close proximity to ironworkers guiding a suspended steel beam.",
+     "severity": "medium",
+     "location_in_image": "Upper center, suspended crane ball and steel beam",
+     "corrective_action": "Ensure tag lines are used to control suspended loads and maintain clear communication between the crane operator and signal person."
+    }
+   ],
+   "immediate_actions": [
+    "Halt unanchored elevated steel work immediately.",
+    "Enforce mandatory 100% tie-off for all workers at height.",
+    "Inspect and ensure all harnesses and lanyards are properly connected to certified anchor points."
+   ],
+   "image_quality_note": "Clear vintage site photograph showing the entire work area and workers at height.",
+   "confidence": "high"
+  }
+ }
+}
