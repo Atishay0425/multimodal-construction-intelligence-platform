@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Badge, PageHeader } from "../components/ui.jsx";
 import { CrackResult, SafetyResult } from "../components/Results.jsx";
 import { outcome, useTestRuns, verdict } from "../components/testRuns.js";
+import { CountUp, Reveal } from "../components/motion.jsx";
 
 export default function TestingPage({ param }) {
   const runs = useTestRuns();
   const [suite, setSuite] = useState(null);
+  const [kind, setKind] = useState("all");
   const [open, setOpen] = useState(param || null); // #testing/<slug> opens that report
   useEffect(() => { if (param) setOpen(param); }, [param]);
   useEffect(() => {
@@ -15,7 +17,8 @@ export default function TestingPage({ param }) {
   }, []);
   const passed = runs?.filter((r) => verdict(r).pass).length ?? 0;
   // A link like #testing/wall-crack lists that test first.
-  const ordered = runs && param ? [...runs].sort((a, b) => (a.slug === param ? -1 : b.slug === param ? 1 : 0)) : runs;
+  const sorted = runs && param ? [...runs].sort((a, b) => (a.slug === param ? -1 : b.slug === param ? 1 : 0)) : runs;
+  const ordered = sorted?.filter((r) => kind === "all" || r.envelope.kind === kind);
 
   return (
     <>
@@ -29,13 +32,21 @@ export default function TestingPage({ param }) {
       {runs === null && <p className="muted-text" style={{ textAlign: "center" }}>Loading test results…</p>}
       {runs?.length === 0 && <div className="alert warn">The saved test results couldn't be loaded.</div>}
       {runs?.length > 0 && (
-        <p className="section-lead" style={{ marginTop: -12 }}><b>{passed} of {runs.length}</b> photo tests passed.</p>
+        <div className="score">
+          <div className="score-dots" aria-hidden="true">{runs.map((r) => <i key={r.slug} className={verdict(r).pass ? "ok" : "bad"} />)}</div>
+          <p><b><CountUp to={passed} /> of {runs.length}</b> photo tests passed</p>
+          <div className="filters" role="group" aria-label="Filter tests">
+            {[["all", "All"], ["safety", "Safety"], ["cracks", "Cracks"]].map(([k, t]) => (
+              <button type="button" key={k} className={`btn ${kind === k ? "primary" : ""}`} aria-pressed={kind === k} onClick={() => setKind(k)}>{t}</button>
+            ))}
+          </div>
+        </div>
       )}
 
       {ordered?.map((r) => {
         const env = r.envelope, res = env.result, v = verdict(r), isOpen = open === r.slug;
         return (
-          <div key={r.slug}>
+          <Reveal key={r.slug}>
             <article className="test-card">
               <img src={r.file} alt={r.label} loading="lazy" />
               <div className="test-body">
@@ -65,7 +76,7 @@ export default function TestingPage({ param }) {
               </div>
             </article>
             {isOpen && <div className="expand">{env.kind === "safety" ? <SafetyResult data={env} /> : <CrackResult data={env} />}</div>}
-          </div>
+          </Reveal>
         );
       })}
 

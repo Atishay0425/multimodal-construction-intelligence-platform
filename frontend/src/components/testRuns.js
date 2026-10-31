@@ -21,7 +21,8 @@ export function useTestRuns() {
   return runs;
 }
 
-export const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1).replaceAll("_", " ") : "");
+const ACRONYMS = { ppe: "PPE" };
+export const cap = (s) => (!s ? "" : ACRONYMS[s] ?? s.charAt(0).toUpperCase() + s.slice(1).replaceAll("_", " "));
 
 /** One-line outcome, e.g. "Critical risk, 95 out of 100" or "Severe crack". */
 export function outcome(run) {

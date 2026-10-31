@@ -155,6 +155,7 @@ export function ImageDropzone({ files, setFiles, max = 5 }) {
         role="button" tabIndex={0}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.current.click(); } }}
       >
+        <svg className="dz-icon" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="14" fill="#0071E3" fillOpacity=".12" /><path d="M24 31V17m0 0-6 6m6-6 6 6M16 33h16" fill="none" stroke="#0071E3" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
         <strong>Drop photos here, or click to choose</strong>
         <small>JPEG, PNG, WEBP or GIF, up to {max} photos of {MAX_MB} MB each</small>
         <input ref={input} type="file" accept="image/*" multiple hidden
@@ -189,11 +190,14 @@ export function Thumbs({ urls }) {
 
 export function Meter({ value, label }) {
   const v = Math.max(0, Math.min(100, Math.round(value)));
+  // Start empty, then fill, so the bar animates in.
+  const [shown, setShown] = useState(0);
+  useEffect(() => { const id = requestAnimationFrame(() => setShown(v)); return () => cancelAnimationFrame(id); }, [v]);
   const tone = v >= 75 ? "crit" : v >= 50 ? "bad" : v >= 25 ? "warn" : "ok";
   return (
     <div className="meter" role="meter" aria-valuenow={v} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
       <div className="meter-top"><span>{label}</span><strong>{v}/100</strong></div>
-      <div className="meter-track"><div className={`meter-fill ${tone}`} style={{ width: `${v}%` }} /></div>
+      <div className="meter-track"><div className={`meter-fill ${tone}`} style={{ width: `${shown}%` }} /></div>
     </div>
   );
 }

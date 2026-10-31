@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { postForm, useAnalysis } from "../api.js";
 import { Card, ErrorBox, Field, ImageDropzone, PageHeader, SubmitRow } from "../components/ui.jsx";
+import SamplePhotos from "../components/SamplePhotos.jsx";
 import { AssistantResult, CrackResult, SafetyResult } from "../components/Results.jsx";
 
 export function SafetyPage() {
@@ -13,6 +14,7 @@ export function SafetyPage() {
       <PageHeader title="Site safety" subtitle="Upload site photos. The report lists hazards by severity, checks PPE and says what to fix first." />
       <form className="form card" onSubmit={(e) => { e.preventDefault(); run(files, notes, siteType); }}>
         <ImageDropzone files={files} setFiles={setFiles} />
+        <SamplePhotos tool="safety" files={files} setFiles={setFiles} />
         <div className="grid-2">
           <Field label="Site type (optional)">
             <select value={siteType} onChange={(e) => setSiteType(e.target.value)}>
@@ -40,6 +42,7 @@ export function CracksPage() {
       <PageHeader title="Crack analysis" subtitle="Upload photos of a crack to get its type, likely cause, severity and repair steps." />
       <form className="form card" onSubmit={(e) => { e.preventDefault(); run(files, notes, element); }}>
         <ImageDropzone files={files} setFiles={setFiles} />
+        <SamplePhotos tool="cracks" files={files} setFiles={setFiles} />
         <p className="hint">Include a coin, ruler or crack gauge in the frame so the width can be judged.</p>
         <div className="grid-2">
           <Field label="Element (optional)">

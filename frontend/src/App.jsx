@@ -7,6 +7,7 @@ import HistoryPage from "./pages/HistoryPage.jsx";
 import TestingPage from "./pages/TestingPage.jsx";
 import Login from "./components/Login.jsx";
 import { BrandMark } from "./components/ui.jsx";
+import { ScrollProgress } from "./components/motion.jsx";
 import { getHealth } from "./api.js";
 
 const PAGES = {
@@ -81,6 +82,7 @@ export default function App() {
           </div>
           <Status health={health} down={down} />
         </nav>
+        <ScrollProgress />
       </header>
       <main className="content" id="main" tabIndex={-1}>
         {/* Keyed so each tool starts fresh and never shows another tool's results. */}
