@@ -12,3 +12,5 @@ backend/data
 .DS_Store
 .env*
 **/.env*
+# Documentation and reports are not part of the deployed site.
+docs
