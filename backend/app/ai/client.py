@@ -30,7 +30,7 @@ class AIError(Exception):
 
 
 def _client(settings: Settings) -> anthropic.Anthropic:
-    return anthropic.Anthropic(api_key=settings.anthropic_api_key or None, max_retries=2, timeout=180.0)
+    return anthropic.Anthropic(api_key=settings.anthropic_api_key or None, max_retries=1, timeout=120.0)  # stays inside Vercel's 300 s limit
 
 
 def _gemini_client(settings: Settings) -> genai.Client:

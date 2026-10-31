@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { downloadJson } from "../api.js";
 
 const TONE = {
@@ -27,7 +27,7 @@ export function Card({ title, children, className = "", right }) {
     <section className={`card ${className}`}>
       {(title || right) && (
         <div className="card-head">
-          <h3>{title}</h3>
+          <h2>{title}</h2>
           {right}
         </div>
       )}
@@ -40,10 +40,20 @@ export function ErrorBox({ message }) {
   return message ? <div className="alert error" role="alert">{message}</div> : null;
 }
 
-export function Spinner({ label = "Analysing…" }) {
+export function BrandMark() {
   return (
-    <div className="spinner-row" role="status">
-      <span className="spinner" /> {label}
+    <svg className="brand-mark" viewBox="0 0 22 22" aria-hidden="true">
+      <rect x="1" y="1" width="20" height="20" rx="2" fill="#FFCC00" stroke="#24292B" strokeWidth="2" />
+      <path d="M5 16.5 11 5l6 11.5Z" fill="#24292B" />
+    </svg>
+  );
+}
+
+/** Hazard-tape progress bar shown while the AI works. */
+export function Spinner({ label = "Analysing…", compact = false }) {
+  return (
+    <div className={`progress ${compact ? "compact" : ""}`} role="status">
+      <span className="tape" aria-hidden="true" /> {label}
     </div>
   );
 }
@@ -59,48 +69,55 @@ export function List({ items, empty = "Nothing to report." }) {
   );
 }
 
+const KIND_NAME = {
+  safety: "Site safety", cracks: "Crack analysis", valuation: "Property valuation",
+  planning: "Project planning", assistant: "Daily briefing", knowledge: "Question",
+};
+
+/** Report header laid out like the title block on a drawing sheet. */
 export function ModeBanner({ envelope }) {
   if (!envelope) return null;
+  const demo = envelope.mode === "demo";
   return (
     <>
-      <div className="report-actions no-print">
-        <span className="meta-line">Report {envelope.id.slice(0, 8)} · {new Date(envelope.created_at).toLocaleString()}</span>
-        <button type="button" className="btn small" onClick={() => window.print()}>Print / Save PDF</button>
-        <button type="button" className="btn small" onClick={() => downloadJson(envelope)}>Download JSON</button>
+      <div className="title-block">
+        <div><span>Report</span><strong>{KIND_NAME[envelope.kind] ?? envelope.kind}</strong></div>
+        <div><span>Reference</span><strong>{envelope.id.slice(0, 8)}</strong></div>
+        <div><span>Created</span><strong>{new Date(envelope.created_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</strong></div>
+        <div><span>Analysed by</span><strong>{demo ? "Demo data" : envelope.model}</strong></div>
+        <div className="tb-actions no-print">
+          <button type="button" className="btn small" onClick={() => window.print()}>Print or save PDF</button>
+          <button type="button" className="btn small" onClick={() => downloadJson(envelope)}>Download JSON</button>
+        </div>
       </div>
-      <ModeNote envelope={envelope} />
+      {demo && (
+        <div className="alert info">
+          This is a sample report because no AI key is set. Add <code>GEMINI_API_KEY</code> (free) or{" "}
+          <code>ANTHROPIC_API_KEY</code> to the server settings for real analysis.
+        </div>
+      )}
     </>
   );
 }
 
-function ModeNote({ envelope }) {
-  return envelope.mode === "demo" ? (
-    <div className="alert info">
-      <strong>Demo data.</strong> No API key is configured, so this is a sample response. Add
-      <code>GEMINI_API_KEY</code> or <code>ANTHROPIC_API_KEY</code> to <code>backend/.env</code> for real analysis.
-    </div>
-  ) : (
-    <div className="meta-line">Analysed by {envelope.model}</div>
-  );
-}
-
-export function Field({ label, children, hint }) {
+export function Field({ label, children, hint, required = false }) {
   return (
     <label className="field">
-      <span>{label}</span>
+      <span>{label}{required && <span className="req" aria-hidden="true">*</span>}</span>
       {children}
       {hint && <small>{hint}</small>}
     </label>
   );
 }
 
-export function SubmitRow({ loading, label, disabled }) {
+export function SubmitRow({ loading, label, disabled, hint }) {
   return (
     <div className="submit-row">
       <button className="btn primary" type="submit" disabled={loading || disabled}>
-        {loading ? "Working…" : label}
+        {loading ? "Analysing…" : label}
       </button>
-      {loading && <Spinner />}
+      {loading && <Spinner label="This can take up to a minute." />}
+      {!loading && disabled && hint && <span className="hint">{hint}</span>}
     </div>
   );
 }
@@ -110,13 +127,9 @@ const MAX_MB = 10; // matches backend MAX_IMAGE_MB default
 export function ImageDropzone({ files, setFiles, max = 5 }) {
   const input = useRef(null);
   const [drag, setDrag] = useState(false);
-  const [urls, setUrls] = useState([]);
-
-  useEffect(() => {
-    const u = files.map((f) => URL.createObjectURL(f));
-    setUrls(u);
-    return () => u.forEach(URL.revokeObjectURL);
-  }, [files]);
+  // Created during render so thumbnails never point at an already-revoked URL.
+  const urls = useMemo(() => files.map((f) => URL.createObjectURL(f)), [files]);
+  useEffect(() => () => urls.forEach(URL.revokeObjectURL), [urls]);
 
   const [warning, setWarning] = useState("");
   const add = (list) => {
@@ -125,8 +138,8 @@ export function ImageDropzone({ files, setFiles, max = 5 }) {
     const skipped = all.length - imgs.length;
     const room = max - files.length;
     setWarning(
-      [skipped && `${skipped} file(s) skipped: not an image or over ${MAX_MB} MB.`,
-       imgs.length > room && `Only ${max} images allowed; extra files ignored.`].filter(Boolean).join(" ")
+      [skipped && `Skipped ${skipped} file(s): not an image, or larger than ${MAX_MB} MB.`,
+       imgs.length > room && `Only ${max} photos fit; the rest were left out.`].filter(Boolean).join(" ")
     );
     setFiles([...files, ...imgs].slice(0, max));
   };
@@ -140,10 +153,10 @@ export function ImageDropzone({ files, setFiles, max = 5 }) {
         onDragLeave={() => setDrag(false)}
         onDrop={(e) => { e.preventDefault(); setDrag(false); add(e.dataTransfer.files); }}
         role="button" tabIndex={0}
-        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && input.current.click()}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.current.click(); } }}
       >
-        <strong>Drop photos here or click to browse</strong>
-        <small>JPEG, PNG, WEBP or GIF · up to {max} images</small>
+        <strong>Drop photos here, or click to choose</strong>
+        <small>JPEG, PNG, WEBP or GIF, up to {max} photos of {MAX_MB} MB each</small>
         <input ref={input} type="file" accept="image/*" multiple hidden
                onChange={(e) => { add(e.target.files); e.target.value = ""; }} />
       </div>
@@ -154,7 +167,7 @@ export function ImageDropzone({ files, setFiles, max = 5 }) {
             <figure key={f.name + i}>
               <img src={urls[i]} alt={f.name} />
               <button type="button" className="thumb-x" aria-label={`Remove ${f.name}`}
-                      onClick={() => setFiles(files.filter((_, j) => j !== i))}>×</button>
+                      onClick={() => { setWarning(""); setFiles(files.filter((_, j) => j !== i)); }}>×</button>
             </figure>
           ))}
         </div>
@@ -168,7 +181,7 @@ export function Thumbs({ urls }) {
   return (
     <div className="thumbs">
       {urls.map((u) => (
-        <figure key={u}><img src={u} alt="Uploaded" /></figure>
+        <figure key={u}><img src={u} alt="Uploaded site photo" loading="lazy" height={112} /></figure>
       ))}
     </div>
   );
@@ -178,7 +191,7 @@ export function Meter({ value, label }) {
   const v = Math.max(0, Math.min(100, Math.round(value)));
   const tone = v >= 75 ? "crit" : v >= 50 ? "bad" : v >= 25 ? "warn" : "ok";
   return (
-    <div className="meter" aria-label={`${label}: ${v} of 100`}>
+    <div className="meter" role="meter" aria-valuenow={v} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
       <div className="meter-top"><span>{label}</span><strong>{v}/100</strong></div>
       <div className="meter-track"><div className={`meter-fill ${tone}`} style={{ width: `${v}%` }} /></div>
     </div>

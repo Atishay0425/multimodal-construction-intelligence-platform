@@ -13,16 +13,16 @@ export function ValuationPage() {
   const { loading, error, data, run } = useAnalysis((vals, f) => postForm("/api/valuation/estimate", vals, f));
   return (
     <>
-      <PageHeader title="Real Estate Valuation" subtitle="Indicative market value from property details and optional photos." />
+      <PageHeader title="Property valuation" subtitle="Enter the property details, with photos if you have them, to get an indicative price range." />
       <form className="form card" onSubmit={(e) => { e.preventDefault(); run(v, files); }}>
         <div className="grid-3">
           <Field label="Property type"><select value={v.property_type} onChange={set("property_type")}>
             {["Apartment", "Independent house", "Villa", "Plot with structure", "Commercial shop", "Office space"].map((o) => <option key={o}>{o}</option>)}</select></Field>
-          <Field label="Location"><input required value={v.location} onChange={set("location")} placeholder="Locality, city" /></Field>
-          <Field label="Area (sq ft)"><input required type="number" min="1" step="any" value={v.area_sqft} onChange={set("area_sqft")} /></Field>
-          <Field label="Bedrooms"><input type="number" min="0" value={v.bedrooms} onChange={set("bedrooms")} /></Field>
-          <Field label="Bathrooms"><input type="number" min="0" value={v.bathrooms} onChange={set("bathrooms")} /></Field>
-          <Field label="Age (years)"><input type="number" min="0" step="any" value={v.age_years} onChange={set("age_years")} /></Field>
+          <Field label="Location" required><input required pattern=".*\S.*" title="Enter a locality and city" maxLength={300} value={v.location} onChange={set("location")} placeholder="Locality, city" /></Field>
+          <Field label="Area (sq ft)" required><input required type="number" min="1" max="10000000" step="any" value={v.area_sqft} onChange={set("area_sqft")} /></Field>
+          <Field label="Bedrooms"><input type="number" min="0" max="100" value={v.bedrooms} onChange={set("bedrooms")} /></Field>
+          <Field label="Bathrooms"><input type="number" min="0" max="100" value={v.bathrooms} onChange={set("bathrooms")} /></Field>
+          <Field label="Age (years)"><input type="number" min="0" max="500" step="any" value={v.age_years} onChange={set("age_years")} /></Field>
           <Field label="Condition"><select value={v.condition} onChange={set("condition")}>
             {["excellent", "good", "average", "poor"].map((o) => <option key={o}>{o}</option>)}</select></Field>
           <Field label="Currency"><select value={v.currency} onChange={set("currency")}>{CURRENCIES.map((o) => <option key={o}>{o}</option>)}</select></Field>
@@ -45,19 +45,19 @@ export function PlanningPage() {
   const { loading, error, data, run } = useAnalysis((vals, f) => postForm("/api/planning/generate", vals, f));
   return (
     <>
-      <PageHeader title="Construction Planning" subtitle="Materials, cost, schedule and an architectural concept from a project brief." />
+      <PageHeader title="Project planning" subtitle="Describe the building to get a cost estimate, material list, schedule and floor plan." />
       <form className="form card" onSubmit={(e) => { e.preventDefault(); run(v, files); }}>
-        <Field label="Project description">
-          <textarea required rows={3} value={v.description} onChange={set("description")}
+        <Field label="Project description" required>
+          <textarea required minLength={10} maxLength={4000} rows={3} value={v.description} onChange={set("description")}
                     placeholder="e.g. Two-storey 3BHK family home with parking and a terrace garden" />
         </Field>
         <div className="grid-3">
           <Field label="Location"><input value={v.location} onChange={set("location")} placeholder="City / region" /></Field>
-          <Field label="Built-up area (m²)"><input required type="number" min="1" step="any" value={v.built_up_area_sqm} onChange={set("built_up_area_sqm")} /></Field>
-          <Field label="Floors"><input required type="number" min="1" max="60" value={v.floors} onChange={set("floors")} /></Field>
-          <Field label="Budget (optional)"><input type="number" min="0" step="any" value={v.budget} onChange={set("budget")} /></Field>
+          <Field label="Built-up area (m²)" required><input required type="number" min="1" max="1000000" step="any" value={v.built_up_area_sqm} onChange={set("built_up_area_sqm")} /></Field>
+          <Field label="Floors" required><input required type="number" min="1" max="60" value={v.floors} onChange={set("floors")} /></Field>
+          <Field label="Budget (optional)"><input type="number" min="1" max="10000000000000" step="any" value={v.budget} onChange={set("budget")} /></Field>
           <Field label="Currency"><select value={v.currency} onChange={set("currency")}>{CURRENCIES.map((o) => <option key={o}>{o}</option>)}</select></Field>
-          <Field label="Target duration (months)"><input type="number" min="1" value={v.target_months} onChange={set("target_months")} /></Field>
+          <Field label="Target duration (months)"><input type="number" min="1" max="240" value={v.target_months} onChange={set("target_months")} /></Field>
         </div>
         <details><summary>Add site / reference photos (optional)</summary><ImageDropzone files={files} setFiles={setFiles} /></details>
         <SubmitRow loading={loading} label="Generate plan" />

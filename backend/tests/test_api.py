@@ -1,4 +1,5 @@
 import io
+from urllib.parse import quote
 
 import pytest
 from fastapi.testclient import TestClient
@@ -131,3 +132,42 @@ def test_history_roundtrip_and_delete():
     assert client.get(f"/api/history/{aid}").json()["id"] == aid
     assert client.delete(f"/api/history/{aid}").status_code == 200
     assert client.get(f"/api/history/{aid}").status_code == 404
+
+
+# Regressions found by the QA agents.
+
+@pytest.mark.parametrize("field,value", [("area_sqft", "nan"), ("area_sqft", "inf"), ("area_sqft", "1e400"),
+                                         ("age_years", "nan"), ("bedrooms", "-3")])
+def test_valuation_rejects_non_finite_or_out_of_range(field, value):
+    data = {"property_type": "apartment", "location": "Pune", "area_sqft": "1000", field: value}
+    r = client.post("/api/valuation/estimate", data=data)
+    assert r.status_code == 422, r.text
+    assert client.get("/api/history").status_code == 200
+
+
+@pytest.mark.parametrize("field,value", [("budget", "nan"), ("built_up_area_sqm", "inf"), ("budget", "-100"),
+                                         ("floors", "1000000"), ("target_months", "0")])
+def test_planning_rejects_non_finite_or_out_of_range(field, value):
+    data = {"description": "house", "built_up_area_sqm": "100", field: value}
+    assert client.post("/api/planning/generate", data=data).status_code == 422
+    assert client.get("/api/history").status_code == 200
+
+
+def test_wildcard_delete_does_not_remove_other_uploads():
+    r = client.post("/api/safety/analyze", files=[img()])
+    url = r.json()["image_urls"][0]
+    for bad in ("*", "?" * 32, "[0-9a-f]" * 4):
+        assert client.delete(f"/api/history/{quote(bad, safe='')}").status_code == 404
+    assert client.get(url).status_code == 200
+
+
+def test_decompression_bomb_is_rejected_cleanly():
+    buf = io.BytesIO()
+    Image.new("1", (20000, 20000)).save(buf, "PNG")  # ~50 KB file, 400 megapixels
+    r = client.post("/api/safety/analyze", files=[img(data=buf.getvalue())])
+    assert r.status_code == 413 and "detail" in r.json()
+
+
+def test_blank_question_is_rejected():
+    r = client.post("/api/knowledge/chat", json={"messages": [{"role": "user", "content": "   "}]})
+    assert r.status_code == 422

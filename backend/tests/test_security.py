@@ -50,3 +50,8 @@ def test_rate_limit_ignores_spoofed_forwarded_for(client, monkeypatch):
     monkeypatch.setattr(get_settings(), "rate_limit_per_hour", 1)
     assert client.post("/api/knowledge/chat", json=ASK, headers={"X-Forwarded-For": "1.1.1.1"}).status_code == 200
     assert client.post("/api/knowledge/chat", json=ASK, headers={"X-Forwarded-For": "2.2.2.2"}).status_code == 429
+
+
+def test_non_ascii_password_does_not_crash(client, monkeypatch):
+    monkeypatch.setattr(get_settings(), "app_password", "s3cret")
+    assert client.post("/api/auth", json={"password": "pässwörd"}).status_code == 401

@@ -10,7 +10,7 @@ export function SafetyResult({ data }) {
       <Card title="Overall assessment" right={<Badge value={r.overall_risk}>{r.overall_risk} risk</Badge>}>
         <p>{r.summary}</p>
         <Meter value={r.risk_score} label="Risk score" />
-        <p className="meta-line">Confidence: {r.confidence} · {r.image_quality_note}</p>
+        <p className="meta-line">Confidence: {r.confidence}. {r.image_quality_note}</p>
       </Card>
       <Card title="PPE check">
         <div className="stat-grid">
@@ -26,8 +26,8 @@ export function SafetyResult({ data }) {
         {r.findings.map((f, i) => (
           <div className="finding" key={i}>
             <div className="finding-head">
-              <Badge value={f.severity} /> <strong>{f.category.replaceAll("_", " ")}</strong>
-              <span className="muted-text"> · {f.location_in_image}</span>
+              <Badge value={f.severity} /> <strong>{f.category === "ppe" ? "PPE" : f.category.replaceAll("_", " ")}</strong>
+              <span className="muted-text">{f.location_in_image}</span>
             </div>
             <p>{f.description}</p>
             <p className="fix"><b>Fix:</b> {f.corrective_action}</p>
@@ -53,7 +53,7 @@ export function CrackResult({ data }) {
         <p className="meta-line">Confidence: {r.confidence}</p>
       </Card>
       {r.findings.map((f, i) => (
-        <Card key={i} title={`${f.crack_type.replaceAll("_", " ")} crack — ${f.location}`}
+        <Card key={i} title={`${f.crack_type.charAt(0).toUpperCase()}${f.crack_type.slice(1).replaceAll("_", " ")} crack: ${f.location}`}
               right={<Badge value={f.severity} />}>
           <div className="stat-grid">
             <div><span>Orientation</span><strong>{f.orientation}</strong></div>
@@ -115,11 +115,11 @@ function FloorPlan({ rooms }) {
         });
         return (
           <div key={fl} className="floor">
-            <h4>{FLOOR_NAMES[idx] ?? `Floor ${idx}`} · {total.toFixed(0)} m²</h4>
+            <h4>{FLOOR_NAMES[idx] ?? `Floor ${idx}`}, {total.toFixed(0)} m²</h4>
             {rows.map((row, i) => (
               <div className="plan-row" key={i}>
-                {row.map((r) => (
-                  <div className="room" key={r.name} style={{ width: r.width_m * scale, height: r.length_m * scale }}
+                {row.map((r, ri) => (
+                  <div className="room" key={`${r.name}-${ri}`} style={{ width: r.width_m * scale, height: r.length_m * scale }}
                        title={`${r.name}: ${r.width_m} × ${r.length_m} m`}>
                     <b>{r.name}</b><small>{r.width_m}×{r.length_m} m</small>
                   </div>
@@ -135,14 +135,16 @@ function FloorPlan({ rooms }) {
 
 function Gantt({ tasks, total }) {
   const phases = [...new Set(tasks.map((t) => t.phase))];
+  const colour = new Map(phases.map((p, i) => [p, `p${i % 8}`]));
   return (
     <div className="gantt">
-      {tasks.map((t) => (
-        <div className="gantt-row" key={t.id}>
+      {tasks.map((t, ti) => (
+        <div className="gantt-row" key={`${t.id}-${ti}`}>
           <div className="gantt-label" title={t.name}><small>{t.id}</small> {t.name}</div>
           <div className="gantt-track">
-            <div className={`gantt-bar p${phases.indexOf(t.phase) % 8}`}
-                 style={{ left: `${(t.start_day / total) * 100}%`, width: `${Math.max(1.5, (t.duration_days / total) * 100)}%` }}
+            <div className={`gantt-bar ${colour.get(t.phase)}`}
+                 style={{ left: `${Math.min(98.5, (t.start_day / total) * 100)}%`,
+                          width: `${Math.max(1.5, Math.min(100 - (t.start_day / total) * 100, (t.duration_days / total) * 100))}%` }}
                  title={`${t.phase}: day ${t.start_day} → ${t.start_day + t.duration_days}`}>
               {t.duration_days}d
             </div>
@@ -170,7 +172,7 @@ export function PlanningResult({ data }) {
           <div><span>Equipment</span><strong>{money(c.equipment_total, c.currency)}</strong></div>
           <div><span>Contingency</span><strong>{money(c.contingency, c.currency)}</strong></div>
         </div>
-        {budget && (
+        {budget > 0 && (
           <p className={`alert ${c.grand_total > budget ? "warn" : "info"}`}>
             {c.grand_total > budget
               ? `Estimate exceeds your budget by ${money(c.grand_total - budget, c.currency)}.`
@@ -216,7 +218,7 @@ export function AssistantResult({ data }) {
       <Card title="Today's briefing" right={<Badge value={r.decision}>{r.decision.replaceAll("_", " ")}</Badge>}>
         <p>{r.summary}</p>
       </Card>
-      <Card title={w?.location ? `Forecast — ${w.location}` : "Forecast"}>
+      <Card title={w?.location ? `Forecast for ${w.location}` : "Forecast"}>
         {w?.days?.length ? (
           <div className="weather">
             {w.days.map((d) => (
@@ -229,7 +231,7 @@ export function AssistantResult({ data }) {
               </div>
             ))}
           </div>
-        ) : <p className="muted-text">Forecast unavailable — advice below is general.</p>}
+        ) : <p className="muted-text">The forecast is unavailable, so the advice below is general.</p>}
       </Card>
       <Card title="Activity impact">
         {r.activity_impacts.map((a, i) => (
@@ -256,7 +258,7 @@ export function KnowledgeAnswerView({ r }) {
       <p>{r.answer}</p>
       {r.key_points.length > 0 && <><h4>Key points</h4><List items={r.key_points} /></>}
       {r.standards_referenced.length > 0 && (
-        <p className="chips">{r.standards_referenced.map((s) => <span key={s} className="chip">{s}</span>)}</p>
+        <p className="chips">{r.standards_referenced.map((s, i) => <span key={`${s}-${i}`} className="chip">{s}</span>)}</p>
       )}
       <p className="muted-text">{r.disclaimer}</p>
     </div>

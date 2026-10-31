@@ -36,6 +36,6 @@ def fetch_forecast(location: str, days: int = 3) -> dict | None:
                 summary=WMO.get(fc["weather_code"][i], "Unknown")).model_dump())
         place = ", ".join(p for p in (hit.get("name"), hit.get("admin1"), hit.get("country")) if p)
         return {"location": place, "days": out}
-    except (httpx.HTTPError, KeyError, ValueError, IndexError) as e:
+    except Exception as e:  # weather is optional: any failure falls back to general advice
         log.warning("weather lookup failed for %r: %s", location, e)
         return None

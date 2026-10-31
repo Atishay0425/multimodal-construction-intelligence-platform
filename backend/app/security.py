@@ -26,7 +26,7 @@ def is_authenticated(request: Request) -> bool:
     pw = get_settings().app_password
     if not pw:
         return True
-    return hmac.compare_digest(request.cookies.get(COOKIE, ""), auth_token(pw))
+    return hmac.compare_digest(request.cookies.get(COOKIE, "").encode(), auth_token(pw).encode())
 
 
 def client_ip(request: Request) -> str:

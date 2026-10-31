@@ -7,6 +7,10 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 
 from .config import get_settings
 
+# Refuse decompression bombs early: a tiny file can declare a gigantic canvas.
+MAX_PIXELS = 40_000_000
+Image.MAX_IMAGE_PIXELS = MAX_PIXELS
+
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP", "GIF"}
 MAX_EDGE = 1568  # larger images are downscaled by the API anyway; saves tokens
 MIN_EDGE = 64
@@ -34,14 +38,19 @@ def _process_one(upload: UploadFile) -> ProcessedImage:
         img = Image.open(io.BytesIO(raw))
         if img.format not in ALLOWED_FORMATS:
             raise HTTPException(415, f"'{name}' is {img.format}; use JPEG, PNG, WEBP or GIF.")
+        if img.width * img.height > MAX_PIXELS:
+            raise HTTPException(413, f"'{name}' is {img.width}x{img.height}; images over 40 megapixels aren't accepted.")
+        img.draft("RGB", (MAX_EDGE * 2, MAX_EDGE * 2))  # cheap JPEG downscale while decoding
         img.load()  # raises OSError on truncated / incomplete files
+        img = ImageOps.exif_transpose(img).convert("RGB")
     except HTTPException:
         raise
-    except (UnidentifiedImageError, OSError, SyntaxError, ValueError):
+    except Image.DecompressionBombError:
+        raise HTTPException(413, f"'{name}' is too large in pixels to process.")
+    except (UnidentifiedImageError, OSError, SyntaxError, ValueError, TypeError):
         raise HTTPException(
             422, f"'{name}' is not a readable image (corrupted or incomplete upload)."
         )
-    img = ImageOps.exif_transpose(img).convert("RGB")
     if min(img.size) < MIN_EDGE:
         raise HTTPException(422, f"'{name}' is too small ({img.width}x{img.height}) to analyse.")
     img.thumbnail((MAX_EDGE, MAX_EDGE))

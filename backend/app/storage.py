@@ -1,4 +1,5 @@
 """SQLite history + on-disk image storage (the 'Data Storage' box in the architecture)."""
+import glob
 import json
 import sqlite3
 import uuid
@@ -84,6 +85,9 @@ def get_analysis(analysis_id: str) -> dict | None:
 def delete_analysis(analysis_id: str) -> bool:
     with closing(_conn()) as conn, conn:
         cur = conn.execute("DELETE FROM analyses WHERE id = ?", (analysis_id,))
-    for f in (get_settings().data_dir / "uploads").glob(f"{analysis_id}_*.jpg"):
+    if cur.rowcount == 0:
+        return False
+    # Only after the row existed; glob.escape keeps the id from acting as a wildcard.
+    for f in (get_settings().data_dir / "uploads").glob(f"{glob.escape(analysis_id)}_*.jpg"):
         f.unlink(missing_ok=True)
-    return cur.rowcount > 0
+    return True

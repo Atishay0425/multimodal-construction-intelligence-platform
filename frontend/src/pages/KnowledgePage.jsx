@@ -15,7 +15,8 @@ export default function KnowledgePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const end = useRef(null);
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth" }), [turns, loading]);
+  // Braces matter: scrollIntoView can return a Promise, which React would try to call as a cleanup.
+  useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, [turns, loading]);
 
   const send = async (text) => {
     const q = text.trim();
@@ -24,7 +25,8 @@ export default function KnowledgePage() {
     setTurns(next); setInput(""); setError(""); setLoading(true);
     try {
       const res = await postJson("/api/knowledge/chat", {
-        messages: next.map((t) => ({ role: t.role, content: t.content })),
+        // The server keeps only recent context and caps each message at 4000 characters.
+        messages: next.slice(-9).map((t) => ({ role: t.role, content: t.content.slice(0, 4000) })),
       });
       setTurns([...next, { role: "assistant", content: res.result.answer, answer: res.result, demo: res.mode === "demo" }]);
     } catch (e) {
@@ -36,10 +38,11 @@ export default function KnowledgePage() {
 
   return (
     <>
-      <PageHeader title="Knowledge Assistant" subtitle="Ask about methods, materials, codes, safety and estimating." />
+      <PageHeader title="Ask a question" subtitle="Ask about methods, materials, codes, safety or estimating. Answers cite the standards they rely on." />
       <div className="chat card">
         {turns.length === 0 && (
           <div className="suggestions">
+            <p>Try one of these:</p>
             {SUGGESTIONS.map((s) => <button key={s} className="btn" onClick={() => send(s)}>{s}</button>)}
           </div>
         )}
@@ -48,12 +51,12 @@ export default function KnowledgePage() {
             {t.answer ? <KnowledgeAnswerView r={t.answer} /> : t.content}
           </div>
         ))}
-        {loading && <div className="bubble assistant"><Spinner label="Thinking…" /></div>}
+        {loading && <div className="bubble assistant"><Spinner label="Thinking…" compact /></div>}
         <div ref={end} />
       </div>
       <ErrorBox message={error} />
       <form className="chat-input" onSubmit={(e) => { e.preventDefault(); send(input); }}>
-        <input value={input} onChange={(e) => setInput(e.target.value)} maxLength={4000} placeholder="Ask a construction question…" aria-label="Question" />
+        <input value={input} onChange={(e) => setInput(e.target.value)} maxLength={4000} name="question" autoComplete="off" placeholder="e.g. How long should I cure an M25 slab in summer?" aria-label="Question" />
         <button className="btn primary" disabled={loading || !input.trim()}>Send</button>
       </form>
     </>
