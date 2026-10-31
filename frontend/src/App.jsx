@@ -9,6 +9,7 @@ import Login from "./components/Login.jsx";
 import { BrandMark } from "./components/ui.jsx";
 import { ScrollProgress } from "./components/motion.jsx";
 import { getHealth } from "./api.js";
+import "./tools.css";
 
 const PAGES = {
   safety: SafetyPage, cracks: CracksPage, valuation: ValuationPage, planning: PlanningPage,

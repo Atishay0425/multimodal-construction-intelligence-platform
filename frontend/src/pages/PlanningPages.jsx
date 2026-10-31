@@ -2,6 +2,18 @@ import { useState } from "react";
 import { postForm, useAnalysis } from "../api.js";
 import { ErrorBox, Field, ImageDropzone, PageHeader, SubmitRow } from "../components/ui.jsx";
 import { PlanningResult, ValuationResult } from "../components/Results.jsx";
+import { AnalysisScene, Presets, ScrollIntoView } from "../components/toolMeta.jsx";
+
+const VAL_EXAMPLES = [
+  { label: "2BHK apartment", v: { property_type: "Apartment", location: "Vijay Nagar, Indore", area_sqft: "1050", bedrooms: "2", bathrooms: "2", age_years: "5", condition: "good", amenities: "parking, lift, security" } },
+  { label: "Independent house", v: { property_type: "Independent house", location: "Aundh, Pune", area_sqft: "2400", bedrooms: "4", bathrooms: "3", age_years: "12", condition: "average", amenities: "garden, parking" } },
+  { label: "Corner shop", v: { property_type: "Commercial shop", location: "MG Road, Bengaluru", area_sqft: "400", bedrooms: "", bathrooms: "1", age_years: "8", condition: "good", amenities: "street frontage" } },
+];
+const PLAN_EXAMPLES = [
+  { label: "3BHK family home", v: { description: "Two-storey 3BHK family home with parking and a terrace garden", location: "Indore", built_up_area_sqm: "220", floors: "2", target_months: "10" } },
+  { label: "Retail shop", v: { description: "Single-storey retail shop with a storage room and a small washroom", location: "Jaipur", built_up_area_sqm: "60", floors: "1", target_months: "4" } },
+  { label: "Small warehouse", v: { description: "Steel-frame warehouse with a loading bay and a small site office", location: "Pune", built_up_area_sqm: "500", floors: "1", target_months: "6" } },
+];
 
 const CURRENCIES = ["INR", "USD", "EUR", "GBP", "AED"];
 
@@ -13,8 +25,9 @@ export function ValuationPage() {
   const { loading, error, data, run } = useAnalysis((vals, f) => postForm("/api/valuation/estimate", vals, f));
   return (
     <>
-      <PageHeader title="Property valuation" subtitle="Enter the property details, with photos if you have them, to get an indicative price range." />
+      <PageHeader tool="valuation" title="Property valuation" subtitle="Enter the property details, with photos if you have them, to get an indicative price range." />
       <form className="form card" onSubmit={(e) => { e.preventDefault(); run(v, files); }}>
+        <Presets items={VAL_EXAMPLES} onPick={(p) => setV({ ...v, ...p.v })} />
         <div className="grid-3">
           <Field label="Property type"><select value={v.property_type} onChange={set("property_type")}>
             {["Apartment", "Independent house", "Villa", "Plot with structure", "Commercial shop", "Office space"].map((o) => <option key={o}>{o}</option>)}</select></Field>
@@ -32,8 +45,9 @@ export function ValuationPage() {
         <details><summary>Add property photos (optional)</summary><ImageDropzone files={files} setFiles={setFiles} /></details>
         <SubmitRow loading={loading} label="Estimate value" />
       </form>
+      {loading && <AnalysisScene tool="valuation" files={files} />}
       <ErrorBox message={error} />
-      {data && <ValuationResult data={data} />}
+      {data && <ScrollIntoView key={data.id}><ValuationResult data={data} /></ScrollIntoView>}
     </>
   );
 }
@@ -45,8 +59,9 @@ export function PlanningPage() {
   const { loading, error, data, run } = useAnalysis((vals, f) => postForm("/api/planning/generate", vals, f));
   return (
     <>
-      <PageHeader title="Project planning" subtitle="Describe the building to get a cost estimate, material list, schedule and floor plan." />
+      <PageHeader tool="planning" title="Project planning" subtitle="Describe the building to get a cost estimate, material list, schedule and floor plan." />
       <form className="form card" onSubmit={(e) => { e.preventDefault(); run(v, files); }}>
+        <Presets items={PLAN_EXAMPLES} onPick={(p) => setV({ ...v, ...p.v })} />
         <Field label="Project description" required>
           <textarea required minLength={10} maxLength={4000} rows={3} value={v.description} onChange={set("description")}
                     placeholder="e.g. Two-storey 3BHK family home with parking and a terrace garden" />
@@ -62,8 +77,9 @@ export function PlanningPage() {
         <details><summary>Add site / reference photos (optional)</summary><ImageDropzone files={files} setFiles={setFiles} /></details>
         <SubmitRow loading={loading} label="Generate plan" />
       </form>
+      {loading && <AnalysisScene tool="planning" files={files} />}
       <ErrorBox message={error} />
-      {data && <PlanningResult data={data} />}
+      {data && <ScrollIntoView key={data.id}><PlanningResult data={data} /></ScrollIntoView>}
     </>
   );
 }

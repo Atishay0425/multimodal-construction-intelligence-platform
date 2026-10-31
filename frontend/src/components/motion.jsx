@@ -27,24 +27,29 @@ export function Reveal({ as: Tag = "div", delay = 0, className = "", children, .
   );
 }
 
-/** Counts from 0 to `to` the first time it is seen. */
-export function CountUp({ to, ms = 1100 }) {
-  const [ref, seen] = useInView(0.5);
+/** Eases a number from 0 up to `to` once `go` turns true. */
+export function useCountTo(to, go, ms = 1100) {
   const [n, setN] = useState(0);
   useEffect(() => {
-    if (!seen) return;
+    if (!go) return;
     if (reduced()) { setN(to); return; }
     let raf, start;
     const tick = (t) => {
       start ??= t;
       const p = Math.min(1, (t - start) / ms);
-      setN(Math.round(to * (1 - Math.pow(1 - p, 3))));
+      setN(to * (1 - Math.pow(1 - p, 3)));
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [seen, to, ms]);
-  return <span ref={ref}>{n}</span>;
+  }, [go, to, ms]);
+  return n;
+}
+
+/** Counts from 0 to `to` the first time it is seen. */
+export function CountUp({ to, ms = 1100 }) {
+  const [ref, seen] = useInView(0.5);
+  return <span ref={ref}>{Math.round(useCountTo(to, seen, ms))}</span>;
 }
 
 /** Spotlight + tilt that follow the pointer. Sets CSS variables, so React never re-renders. */

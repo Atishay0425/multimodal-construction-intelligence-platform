@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { deleteHistory, getHistory, getReport } from "../api.js";
 import { Badge, Card, ErrorBox, ModeBanner, PageHeader } from "../components/ui.jsx";
+import { ToolTile } from "../components/toolMeta.jsx";
+import { cap } from "../components/testRuns.js";
+import { money } from "../api.js";
 import { AssistantResult, CrackResult, PlanningResult, SafetyResult, ValuationResult } from "../components/Results.jsx";
 import { KnowledgeAnswerView } from "../components/Results.jsx";
 
@@ -14,6 +17,34 @@ const VIEWS = {
     </div>
   ),
 };
+const DECISION = { go: "Good to go", proceed_with_caution: "Proceed with caution", hold: "Hold work" };
+
+/** A one-line headline and a short summary for a saved report card. */
+function headline(r) {
+  const x = r.result ?? {};
+  try {
+    switch (r.kind) {
+      case "safety": return [`${cap(x.overall_risk)} risk, ${x.risk_score} out of 100`, x.summary];
+      case "cracks": return [x.cracks_detected ? `${cap(x.overall_severity)} crack` : "No cracks found", x.summary];
+      case "valuation": return [money(x.estimated_value, x.currency), x.condition_assessment];
+      case "planning": return [money(x.cost_summary.grand_total, x.cost_summary.currency), x.summary];
+      case "assistant": return [DECISION[x.decision] ?? cap(x.decision), x.summary];
+      case "knowledge": return [r.context?.question ?? "Question", x.answer];
+    }
+  } catch { /* fall through to the plain label */ }
+  return [KIND_LABEL[r.kind] ?? r.kind, ""];
+}
+
+function ago(iso) {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (!(s >= 0)) return new Date(iso).toLocaleString();
+  if (s < 60) return "Just now";
+  if (s < 3600) return `${Math.floor(s / 60)} min ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)} h ago`;
+  if (s < 86400 * 7) return `${Math.floor(s / 86400)} d ago`;
+  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
 export const KIND_LABEL = { safety: "Site safety", cracks: "Crack analysis", valuation: "Valuation", planning: "Planning", assistant: "Daily briefing", knowledge: "Question" };
 
 export default function HistoryPage({ param }) {
@@ -54,23 +85,38 @@ export default function HistoryPage({ param }) {
 
   return (
     <>
-      <PageHeader title="Saved reports" subtitle="Every report is saved here. Open one to view, print or delete it." />
+      <PageHeader tool="history" title="Saved reports" subtitle="Every report is saved here. Open one to view, print or delete it." />
       <div className="filters">
         {["", ...Object.keys(KIND_LABEL)].map((k) => (
           <button key={k} aria-pressed={kind === k} className={`btn ${kind === k ? "primary" : ""}`} onClick={() => { setKind(k); setOpen(null); }}>{k ? KIND_LABEL[k] : "All"}</button>
         ))}
       </div>
       <ErrorBox message={error} />
-      <div className="history-list">
-        {rows.length === 0 && <p className="muted-text">No reports here yet. Run any tool and its report is saved automatically.</p>}
-        {rows.map((r) => (
-          <button key={r.id} className={`history-item ${open?.id === r.id ? "active" : ""}`} onClick={() => setOpen(r)}>
-            <Badge value="muted">{KIND_LABEL[r.kind]}</Badge>
-            <span>{new Date(r.created_at).toLocaleString()}</span>
-            {r.mode === "demo" && <Badge value="medium">demo</Badge>}
-          </button>
-        ))}
-      </div>
+      {rows.length === 0 ? (
+        <div className="empty">
+          <ToolTile id="history" size={64} />
+          <h2>No reports here yet</h2>
+          <p>Run any tool and its report is saved automatically.</p>
+          <div className="hero-actions"><a className="btn primary" href="#safety">Check site safety</a><a className="btn" href="#planning">Plan a build</a></div>
+        </div>
+      ) : (
+        <div className="rep-grid">
+          {rows.map((r, i) => {
+            const [title, text] = headline(r);
+            return (
+              <button key={r.id} style={{ "--i": Math.min(i, 12) }} className={`rep-card ${open?.id === r.id ? "active" : ""}`} onClick={() => setOpen(r)} aria-pressed={open?.id === r.id}>
+                <ToolTile id={r.kind === "knowledge" ? "knowledge" : r.kind} size={44} />
+                <span className="rc-main">
+                  <small>{KIND_LABEL[r.kind]}<span>{ago(r.created_at)}</span></small>
+                  <b>{title}</b>
+                  {r.mode === "demo" && <Badge value="medium">demo</Badge>}
+                  {text && <span className="rc-text">{text}</span>}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
       {found?.missing && <div className="alert warn">That report wasn't found. It may have been deleted.</div>}
       {open && (
         <div ref={report} style={{ scrollMarginTop: 16 }}>

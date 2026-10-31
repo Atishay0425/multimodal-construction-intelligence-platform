@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "./ui.jsx";
 import { cap, outcome } from "./testRuns.js";
+import { Ring, SeverityTrack } from "./gauges.jsx";
 import { prefersReducedMotion } from "./motion.jsx";
 
 // Where each finding sits in its photo, as % of the image (x, y). Placed by hand from the
@@ -15,7 +16,6 @@ const PINS = {
 const SIZE = { "fall-protection": [1024, 766], scaffolding: [1920, 1440], "workers-building": [1920, 1440], "wall-crack": [1346, 2048], "retaining-wall-crack": [1050, 1400] };
 const TAB = { "fall-protection": "Steel frame", scaffolding: "Scaffolding", "workers-building": "Formwork", "wall-crack": "Facade crack", "retaining-wall-crack": "Retaining wall" };
 const CYCLE_MS = 9000;
-const SEVERITIES = ["minor", "moderate", "severe"];
 
 /** One shape for safety hazards and cracks. */
 function toItems(run) {
@@ -27,30 +27,6 @@ function toItems(run) {
         text: `${cap(f.crack_type)} crack, about ${f.estimated_width_mm} mm wide (estimated, there is no scale in the photo).`,
         where: f.location, fix: f.recommended_actions?.[0], at: PINS[run.slug]?.[i],
       });
-}
-
-function Ring({ value, tone }) {
-  const [shown, setShown] = useState(0);
-  useEffect(() => { const id = requestAnimationFrame(() => setShown(value)); return () => cancelAnimationFrame(id); }, [value]);
-  const R = 42, C = 2 * Math.PI * R;
-  return (
-    <div className={`ring ${tone}`} role="img" aria-label={`Risk score ${value} out of 100`}>
-      <svg viewBox="0 0 100 100" aria-hidden="true">
-        <circle cx="50" cy="50" r={R} className="ring-bg" />
-        <circle cx="50" cy="50" r={R} className="ring-fg" strokeDasharray={C} strokeDashoffset={C * (1 - shown / 100)} transform="rotate(-90 50 50)" />
-      </svg>
-      <b>{value}</b><small>of 100</small>
-    </div>
-  );
-}
-
-function SeverityTrack({ value }) {
-  const at = SEVERITIES.indexOf(value);
-  return (
-    <div className="sev-track" role="img" aria-label={`Severity: ${value}`}>
-      {SEVERITIES.map((s, i) => <span key={s} className={i <= at ? `on t${at}` : ""}>{cap(s)}</span>)}
-    </div>
-  );
 }
 
 export default function Scanner({ runs }) {

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { downloadJson } from "../api.js";
+import { TOOL_META, ToolTile } from "./toolMeta.jsx";
 
 const TONE = {
   none: "ok", low: "ok", minor: "ok", go: "ok", high_conf: "ok", all: "ok",
@@ -13,18 +14,21 @@ export function Badge({ value, children }) {
   return <span className={`badge ${TONE[value] ?? "muted"}`}>{label}</span>;
 }
 
-export function PageHeader({ title, subtitle }) {
+export function PageHeader({ title, subtitle, tool }) {
+  const m = tool && TOOL_META[tool];
   return (
-    <header className="page-header">
+    <header className="page-header" style={m ? { "--a1": m.a[0], "--a2": m.a[1] } : undefined}>
+      {m && <ToolTile id={tool} />}
       <h1>{title}</h1>
       <p>{subtitle}</p>
+      {m && <ul className="gets" aria-label="What you get">{m.gets.map((g) => <li key={g}>{g}</li>)}</ul>}
     </header>
   );
 }
 
-export function Card({ title, children, className = "", right }) {
+export function Card({ title, children, className = "", right, id }) {
   return (
-    <section className={`card ${className}`}>
+    <section className={`card ${className}`} id={id}>
       {(title || right) && (
         <div className="card-head">
           <h2>{title}</h2>
@@ -58,10 +62,10 @@ export function Spinner({ label = "Analysing…", compact = false }) {
   );
 }
 
-export function List({ items, empty = "Nothing to report." }) {
+export function List({ items, empty = "Nothing to report.", className = "" }) {
   if (!items?.length) return <p className="muted-text">{empty}</p>;
   return (
-    <ul className="plain-list">
+    <ul className={`plain-list ${className}`}>
       {items.map((x, i) => (
         <li key={i}>{x}</li>
       ))}
@@ -116,7 +120,6 @@ export function SubmitRow({ loading, label, disabled, hint }) {
       <button className="btn primary" type="submit" disabled={loading || disabled}>
         {loading ? "Analysing…" : label}
       </button>
-      {loading && <Spinner label="This can take up to a minute." />}
       {!loading && disabled && hint && <span className="hint">{hint}</span>}
     </div>
   );

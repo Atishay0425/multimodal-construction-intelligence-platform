@@ -22,7 +22,7 @@ export default function TestingPage({ param }) {
 
   return (
     <>
-      <PageHeader title="Testing" subtitle="Real site photos run through the same analysis you use, and the automated checks behind it." />
+      <PageHeader tool="testing" title="Testing" subtitle="Real site photos run through the same analysis you use, and the automated checks behind it." />
 
       <h2 className="section-title" style={{ marginTop: 0 }}>Real site photos</h2>
       <p className="section-lead">

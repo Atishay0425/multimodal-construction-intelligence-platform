@@ -2,6 +2,7 @@ import { useState } from "react";
 import { postForm, useAnalysis } from "../api.js";
 import { Card, ErrorBox, Field, ImageDropzone, PageHeader, SubmitRow } from "../components/ui.jsx";
 import SamplePhotos from "../components/SamplePhotos.jsx";
+import { AnalysisScene, ScrollIntoView } from "../components/toolMeta.jsx";
 import { AssistantResult, CrackResult, SafetyResult } from "../components/Results.jsx";
 
 export function SafetyPage() {
@@ -11,7 +12,7 @@ export function SafetyPage() {
   const { loading, error, data, run } = useAnalysis((f, n, s) => postForm("/api/safety/analyze", { notes: n, site_type: s }, f));
   return (
     <>
-      <PageHeader title="Site safety" subtitle="Upload site photos. The report lists hazards by severity, checks PPE and says what to fix first." />
+      <PageHeader tool="safety" title="Site safety" subtitle="Upload site photos. The report lists hazards by severity, checks PPE and says what to fix first." />
       <form className="form card" onSubmit={(e) => { e.preventDefault(); run(files, notes, siteType); }}>
         <ImageDropzone files={files} setFiles={setFiles} />
         <SamplePhotos tool="safety" files={files} setFiles={setFiles} />
@@ -26,8 +27,9 @@ export function SafetyPage() {
         </div>
         <SubmitRow loading={loading} label="Analyse safety" disabled={!files.length} hint="Add at least one photo." />
       </form>
+      {loading && <AnalysisScene tool="safety" files={files} />}
       <ErrorBox message={error} />
-      {data && <SafetyResult data={data} />}
+      {data && <ScrollIntoView key={data.id}><SafetyResult data={data} /></ScrollIntoView>}
     </>
   );
 }
@@ -39,7 +41,7 @@ export function CracksPage() {
   const { loading, error, data, run } = useAnalysis((f, n, el) => postForm("/api/cracks/analyze", { notes: n, element: el }, f));
   return (
     <>
-      <PageHeader title="Crack analysis" subtitle="Upload photos of a crack to get its type, likely cause, severity and repair steps." />
+      <PageHeader tool="cracks" title="Crack analysis" subtitle="Upload photos of a crack to get its type, likely cause, severity and repair steps." />
       <form className="form card" onSubmit={(e) => { e.preventDefault(); run(files, notes, element); }}>
         <ImageDropzone files={files} setFiles={setFiles} />
         <SamplePhotos tool="cracks" files={files} setFiles={setFiles} />
@@ -55,9 +57,23 @@ export function CracksPage() {
         </div>
         <SubmitRow loading={loading} label="Analyse cracks" disabled={!files.length} hint="Add at least one photo." />
       </form>
+      {loading && <AnalysisScene tool="cracks" files={files} />}
       <ErrorBox message={error} />
-      {data && <CrackResult data={data} />}
+      {data && <ScrollIntoView key={data.id}><CrackResult data={data} /></ScrollIntoView>}
     </>
+  );
+}
+
+const ACTIVITIES = ["slab concreting", "bar bending", "brickwork", "plastering", "excavation", "crane lifting", "roofing", "painting"];
+
+function ActivityChips({ value, onChange }) {
+  const list = value.split(",").map((x) => x.trim()).filter(Boolean);
+  const toggle = (a) => onChange((list.includes(a) ? list.filter((x) => x !== a) : [...list, a]).join(", "));
+  return (
+    <div className="presets">
+      <span>Common activities</span>
+      <div>{ACTIVITIES.map((a) => <button type="button" key={a} className={list.includes(a) ? "on" : ""} aria-pressed={list.includes(a)} onClick={() => toggle(a)}>{a}</button>)}</div>
+    </div>
   );
 }
 
@@ -68,18 +84,20 @@ export function AssistantPage() {
   const { loading, error, data, run } = useAnalysis((vals, f) => postForm("/api/assistant/daily", vals, f));
   return (
     <>
-      <PageHeader title="Daily briefing" subtitle="Enter the site location and today's work. The briefing checks the forecast and says what can go ahead." />
+      <PageHeader tool="assistant" title="Daily briefing" subtitle="Enter the site location and today's work. The briefing checks the forecast and says what can go ahead." />
       <form className="form card" onSubmit={(e) => { e.preventDefault(); run(v, files); }}>
         <div className="grid-2">
           <Field label="Site location" required hint="City or town, used for the forecast"><input required pattern=".*\S.*" title="Enter a city or town" name="location" autoComplete="address-level2" value={v.location} onChange={set("location")} placeholder="e.g. Indore" /></Field>
-          <Field label="Planned activities" hint="Comma separated"><input value={v.activities} onChange={set("activities")} placeholder="slab concreting, bar bending, brickwork" /></Field>
+          <Field label="Planned activities" hint="Comma separated, or tap to add"><input value={v.activities} onChange={set("activities")} placeholder="slab concreting, bar bending, brickwork" /></Field>
         </div>
+        <ActivityChips value={v.activities} onChange={(activities) => setV({ ...v, activities })} />
         <Field label="Notes (optional)"><input value={v.notes} onChange={set("notes")} placeholder="Anything the assistant should know" /></Field>
         <details><summary>Add site photos (optional)</summary><ImageDropzone files={files} setFiles={setFiles} /></details>
         <SubmitRow loading={loading} label="Get today's briefing" />
       </form>
+      {loading && <AnalysisScene tool="assistant" files={files} />}
       <ErrorBox message={error} />
-      {data && <AssistantResult data={data} />}
+      {data && <ScrollIntoView key={data.id}><AssistantResult data={data} /></ScrollIntoView>}
     </>
   );
 }
